@@ -1,0 +1,11 @@
+{
+  "dbname" : "posts.db",
+  "homepage" : "home2.html",
+  "postpage" : "new_post2.html",
+  "aboutpage" : "about.html",
+  "contactpage" : "contact.html",
+  "logpage" : "log_page.html",
+  "trendpage" : "trend_page.html",
+  "debug" : "True",
+  "testing" : "True"
+}

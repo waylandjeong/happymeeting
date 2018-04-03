@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Happy Meeting{% endblock %}
+{% block style %}
+rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subpage.css')}}"
+{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block pagetitle %}Happy Meeting{% endblock %}
+{% block nav %}
+<!--
+<ul>
+    <li><a href="{{url_for('home')}}">Home</li>
+    <li><a href="{{url_for('about')}}">About</li>
+    <li><a href="">Trends</li>
+    <li><a class="selected" href="{{url_for('new_post', score=0)}}">Input</li>
+    <li><a href="{{url_for('log_page')}}">Log</li>
+    <li><a href="{{url_for('contact')}}">Contact</li>
+</ul>
+-->
+{% endblock %}
+{% block content %}
+<div id="main" >
+    <form action="{{ url_for('create_post', score=score) }}" method="Post">
+        {% if score|int > 0 %}
+            <b>Score: {{ score }}</b><br>
+        {% else %}
+            Meeting Score (between 1 and 5): <input type="number" name="entry_score" min="1" max="5"><br>
+        {% endif %}
+        Meeting Name: <input type="text" name="title"><br>
+        Comments: <input type="text" name="text"><br>
+        <input type="submit" value="Post">
+    </form>
+</div>
+{% endblock %}

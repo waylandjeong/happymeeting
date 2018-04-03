@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Happy Meeting{% endblock %}
+{% block style %}
+rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subpage.css')}}"
+{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block pagetitle %}Happy Meeting{% endblock %}
+{% block nav %}
+<ul>
+    <li><a href="{{url_for('home')}}">Home</li>
+    <li><a href="{{url_for('about')}}">About</li>
+    <li><a href="{{url_for('trend_page')}}">Trends</li>
+    <li><a href="{{url_for('new_post', score=0)}}">Input</li>
+    <li><a class="selected" href="{{url_for('log_page')}}">Log</li>
+    <li><a href="{{url_for('contact')}}">Contact</li>
+</ul>
+{% endblock %}
+{% block content %}
+<div id="main" style="top:30px">
+    {% for post in posts %}
+        {% if loop.index < 5 %}
+            <h2>Meeing Title: {{post.title}}</h2>
+            <h4>Posted at: {{ post.date.strftime('%m/%d/%Y at %G:%I%p') }}</h4>
+            <h4>Score: {{post.score}}</h4>
+            <p>Comments: {{post.text}}</p>
+            <br>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
