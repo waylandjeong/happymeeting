@@ -21,7 +21,68 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
 <div id="main" style="top:30px">
     <br>
     <center>
-    <b>Happiness Trend</b><br>
+        <h2><b>Happiness Chart</b></h2>
+
+        <!-- bar chart canvas element -->
+        <canvas id="chart" width="600" height="400"></canvas>
+        <script>
+
+            // bar chart data
+            var barData = {
+            labels : [{% for item in labels %}
+                      "{{item}}",
+                      {% endfor %}],
+            datasets : [
+                {
+                    label: '{{ legend }}',
+                    fillColor: "rgba(151,187,205,0.2)",
+                    strokeColor: "rgba(151,187,205,1)",
+                    pointColor: "rgba(151,187,205,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(151,187,205,1)",
+                    bezierCurve : false,
+                    data : [{% for item in values %}
+                            {{item}},
+                            {% endfor %}]
+                }]
+            }
+
+            Chart.defaults.global.animationSteps = 50;
+            Chart.defaults.global.tooltipYPadding = 16;
+            Chart.defaults.global.tooltipCornerRadius = 0;
+            Chart.defaults.global.tooltipTitleFontStyle = "normal";
+            Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
+            Chart.defaults.global.animationEasing = "easeOutBounce";
+            Chart.defaults.global.responsive = false;
+            Chart.defaults.global.scaleLineColor = "black";
+            Chart.defaults.global.scaleFontSize = 16;
+
+            // get bar chart canvas
+            var mychart = document.getElementById("chart").getContext("2d");
+
+            steps = 5
+            max = 5
+
+            // draw line chart
+            var LineChartDemo = new Chart(mychart).Line(barData, {
+                scaleOverride: true,
+                scaleSteps: steps,
+                scaleStepWidth: Math.ceil(max / steps),
+                scaleStartValue: 0,
+                scaleShowVerticalLines: true,
+                scaleShowGridLines : true,
+                barShowStroke : true,
+                scaleShowLabels: true,
+                bezierCurve: false,
+
+            });
+
+
+        </script>
+
+        <h5> 5=very happy    4=happy    3=neutral    2=sad    1=very sad    0=no data</h5>
+
     </center>
 </div>
 {% endblock %}
