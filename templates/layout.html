@@ -4,6 +4,8 @@
     {% block head %}
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
+    <!-- import plugin script -->
+    <script src="{{url_for('static', filename='Chart.min.js')}}"></script>
     <link {% block style %}{% endblock %} />
     {% endblock %}
 </head>
