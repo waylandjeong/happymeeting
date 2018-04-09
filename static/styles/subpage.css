@@ -48,6 +48,7 @@ h1, h2, h3 {
     width: 600px;
     text-align: left;
     float: right;
+    list-style-type: square;
 }
 
 #footer {
