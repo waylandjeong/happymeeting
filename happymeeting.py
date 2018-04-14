@@ -157,7 +157,7 @@ def build_graph_data(num, gtype, posts):
 @app.route('/trends/')
 def trend_page():
     legend = '5=very happy 4=happy 3=neutral 2=sad 1=very sad 0=no data'
-    labels, values = build_graph_data(7, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
+    labels, values = build_graph_data(5, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
     return render_template(app_config['TRENDPAGE'], labels=labels, values=values, legend=legend)
 
 
@@ -200,4 +200,4 @@ if __name__ == '__main__':
                     score=random.randint(1, 5)
                 )
 
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=8080)
