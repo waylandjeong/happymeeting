@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}Happy Meeting{% endblock %}
+{% block style %}
+rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subpage.css')}}"
+{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block pagetitle %}Happy Meeting{% endblock %}
+{% block content %}
+<div id="main" style="top:30px">
+    <br>
+    Placeholder for admin page.
+</div>
+{% endblock %}
