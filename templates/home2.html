@@ -7,16 +7,6 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/main
     {{ super() }}
 {% endblock %}
 {% block pagetitle %}Happy Meeting{% endblock %}
-{% block nav %}
-<ul>
-    <li><a class="selected" href="{{url_for('home')}}">Home</li>
-    <li><a href="{{url_for('about')}}">About</li>
-    <li><a href="{{url_for('trend_page')}}">Trends</li>
-    <li><a href="{{url_for('new_post', score=0)}}">Input</li>
-    <li><a href="{{url_for('log_page')}}">Log</li>
-    <li><a href="{{url_for('contact')}}">Contact</li>
-</ul>
-{% endblock %}
 {% block content %}
 <div id="main1" style="top:30px">
     <a href="{{url_for('new_post', score=1)}}"><img src="{{url_for('images', filename='images/verysad.jpg', width=100)}}" alt="happy image not found"/></a>
