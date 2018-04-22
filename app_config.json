@@ -6,6 +6,6 @@
   "contactpage" : "contact.html",
   "logpage" : "log_page.html",
   "trendpage" : "trend_page.html",
-  "debug" : "True",
+  "debug" : "False",
   "testing" : "True"
 }
