@@ -55,6 +55,12 @@
                     {% else %}
                         <li><a href="{{url_for('contact')}}">Contact</li>
                     {% endif %}
+
+                    {% if page == "admin" %}
+                        <li><a class="selected" href="{{url_for('admin')}}">Admin</li>
+                    {% else %}
+                        <li><a href="{{url_for('admin')}}">Admin</li>
+                    {% endif %}
                 </ul>
             </div>
             {% endif %}
