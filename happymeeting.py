@@ -53,24 +53,24 @@ def teardown_request(exception):
 
 @app.route('/')
 def home():
-    return render_template(app_config['HOMEPAGE'])
+    return render_template(app_config['HOMEPAGE'], page="home")
 
 
 @app.route('/new_post/')
 def new_post():
     score = request.args.get('score', default='', type=str)
     print(score)
-    return render_template(app_config['POSTPAGE'], score=score)
+    return render_template(app_config['POSTPAGE'], page="post", score=score)
 
 
 @app.route('/about/')
 def about():
-    return render_template(app_config['ABOUTPAGE'])
+    return render_template(app_config['ABOUTPAGE'], page="about")
 
 
 @app.route('/contact/')
 def contact():
-    return render_template(app_config['CONTACTPAGE'])
+    return render_template(app_config['CONTACTPAGE'], page="contact")
 
 
 @app.route('/log/')
@@ -84,12 +84,12 @@ def log_page():
         count+=1
         if count >= LOG_ENTRIES:
             break
-    return render_template(app_config['LOGPAGE'], posts=filtered_posts)
+    return render_template(app_config['LOGPAGE'], page="log", posts=filtered_posts)
 
 
 # Simple class to implement an enumerated type for the graph duration interval
 class GraphDurationType:
-    day, month, year = range(3)
+    day, week, month, year = range(4)
 
 
 # Helper function to build a list of date keys
@@ -97,8 +97,14 @@ def build_date_keys(num, gtype):
     keys = []
     weekdays =[]
     if gtype == GraphDurationType.day:
-        for i in range(0, num):
-            date_n_days_ago = datetime.datetime.now() - timedelta(days=(num-i-1))
+        for index in range(0, num):
+            date_n_days_ago = datetime.datetime.now() - timedelta(days=(num-index-1))
+            weekdays.append(calendar.day_name[date_n_days_ago.weekday()])
+            keys.append(date_n_days_ago.strftime('%m%d%Y'))
+    elif gtype == GraphDurationType.week:
+        block = 7
+        for index in range(0, num):
+            date_n_days_ago = datetime.datetime.now() - timedelta(days=((num*block)-(index*block)-block))
             weekdays.append(calendar.day_name[date_n_days_ago.weekday()])
             keys.append(date_n_days_ago.strftime('%m%d%Y'))
     elif gtype == GraphDurationType.month:
@@ -143,6 +149,8 @@ def build_graph_data(num, gtype, posts):
             else:
                 print("scores = %d / %d" % (scores[score][1], scores[score][0]))
                 values.append(scores[score][1] // scores[score][0])
+    elif gtype == GraphDurationType.week:
+        pass
     elif gtype == GraphDurationType.month:
         pass
     elif gtype == GraphDurationType.year:
@@ -155,10 +163,24 @@ def build_graph_data(num, gtype, posts):
 # scores and create a percentage score based on maximum happiness (5 * # entries). Plot this score per day for the
 # past <n> days.
 @app.route('/trends/')
-def trend_page():
+@app.route('/trends/<string:duration>/')
+def trend_page(duration=None):
+    steps = 5
     legend = '5=very happy 4=happy 3=neutral 2=sad 1=very sad 0=no data'
-    labels, values = build_graph_data(5, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
-    return render_template(app_config['TRENDPAGE'], labels=labels, values=values, legend=legend)
+    if duration == "days" or duration is None:
+        labels, values = build_graph_data(steps, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
+    elif duration == "weeks":
+        pass
+    elif duration == "months":
+        print("Selected Months in Trend page")
+        # labels, values = build_graph_data(steps, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
+        labels = ['week1', 'week2', 'week3', 'week4', 'week5']
+        values = [1, 2, 3, 4, 5]
+        print(labels)
+        print(values)
+    elif duration == "years":
+        pass
+    return render_template(app_config['TRENDPAGE'], page="trends", steps=steps, labels=labels, values=values, legend=legend)
 
 
 @app.route('/create/', methods=['POST'])
