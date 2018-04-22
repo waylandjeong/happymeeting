@@ -1,15 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_images import Images
 from datetime import datetime, timedelta
+from dateutil.relativedelta import *
 import os
 import calendar
 import random
 from model import *
 from peewee import *
 import json
-# import matplotlib.pyplot as plt
-# import io
-# import base64
 
 app_config = {}
 app = Flask(__name__)
@@ -100,15 +98,25 @@ def build_date_keys(num, gtype):
         for index in range(0, num):
             date_n_days_ago = datetime.datetime.now() - timedelta(days=(num-index-1))
             weekdays.append(calendar.day_name[date_n_days_ago.weekday()])
-            keys.append(date_n_days_ago.strftime('%m%d%Y'))
+            keys.append(date_n_days_ago.strftime('%Y%m%d'))
     elif gtype == GraphDurationType.week:
         block = 7
         for index in range(0, num):
+            print((num*block)-(index*block)-block)
             date_n_days_ago = datetime.datetime.now() - timedelta(days=((num*block)-(index*block)-block))
-            weekdays.append(calendar.day_name[date_n_days_ago.weekday()])
-            keys.append(date_n_days_ago.strftime('%m%d%Y'))
+            weekdays.append("week" + date_n_days_ago.strftime("%U"))
+            keys.append(date_n_days_ago.strftime('%Y%U'))
     elif gtype == GraphDurationType.month:
-        pass
+        curr_mon = datetime.datetime.now().month
+        count = 0
+        for index in range(num-1,-1,-1):
+            mon = ((curr_mon-index+12)%12)
+            adj_mon = mon if mon != 0 else 12
+            weekdays.append(calendar.month_name[adj_mon])
+            mon_id = list(calendar.month_name).index(calendar.month_name[adj_mon])
+            d_obj = datetime.datetime.now() - relativedelta(months=index)
+            keys.append(d_obj.strftime("%Y") + "%02d" % mon_id)
+            count += 1
     elif gtype == GraphDurationType.year:
         pass
 
@@ -126,8 +134,6 @@ def create_score_dict(keyval, keys, posts):
         if key in score_dict:
             entry = [score_dict[key][0] + 1, score_dict[key][1] + post.score]
             score_dict[key] = entry
-    for key in score_dict:
-        print("%s -> %d %d" % (key, score_dict[key][0], score_dict[key][1]))
     return score_dict
 
 
@@ -138,24 +144,27 @@ def build_graph_data(num, gtype, posts):
     # dummy date for test
     # labels = ["March","April","May","June","July","August"]
     values = []
-    keys, labels = build_date_keys(num, GraphDurationType.day)
-    print(keys, labels)
+    keys, labels = build_date_keys(num, gtype)
+    if app_config['DEBUG'] == 'True':
+        print("keys, labels in build_graph_data =>", keys, labels)
     if gtype == GraphDurationType.day:
-        scores = create_score_dict('%m%d%Y', keys, posts)
-        print(scores)
-        for score in sorted(scores):
-            if scores[score][0] == 0:
-                values.append(0)
-            else:
-                print("scores = %d / %d" % (scores[score][1], scores[score][0]))
-                values.append(scores[score][1] // scores[score][0])
+        key_val = '%Y%m%d'
     elif gtype == GraphDurationType.week:
-        pass
+        key_val = '%Y%U'
     elif gtype == GraphDurationType.month:
-        pass
+        key_val = '%Y%m'
     elif gtype == GraphDurationType.year:
         pass
+
     # return 2d list
+    scores = create_score_dict(key_val, keys, posts)
+    if app_config['DEBUG'] == 'True':
+        print("scores in build_graph_data =>", scores)
+    for score in sorted(scores, key=lambda x: datetime.datetime.strptime(x, key_val)):
+        if scores[score][0] == 0:
+            values.append(0)
+        else:
+            values.append(int(round(float(scores[score][1]) / float(scores[score][0]))))
     return labels, values
 
 
@@ -170,16 +179,14 @@ def trend_page(duration=None):
     if duration == "days" or duration is None:
         labels, values = build_graph_data(steps, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
     elif duration == "weeks":
-        pass
+        labels, values = build_graph_data(steps, GraphDurationType.week, Post.select().order_by(Post.date.desc()))
     elif duration == "months":
-        print("Selected Months in Trend page")
-        # labels, values = build_graph_data(steps, GraphDurationType.day, Post.select().order_by(Post.date.desc()))
-        labels = ['week1', 'week2', 'week3', 'week4', 'week5']
-        values = [1, 2, 3, 4, 5]
-        print(labels)
-        print(values)
+        labels, values = build_graph_data(steps, GraphDurationType.month, Post.select().order_by(Post.date.desc()))
     elif duration == "years":
         pass
+    if app_config['DEBUG'] == 'True':
+        print("labels in trend_page =>", labels)
+        print("values in trend_page =>", values)
     return render_template(app_config['TRENDPAGE'], page="trends", steps=steps, labels=labels, values=values, legend=legend)
 
 
@@ -196,7 +203,8 @@ def create_post():
     )
 
     # return the user to the home page
-    print(url_for('home'))
+    if app_config['DEBUG'] == 'True':
+        print(url_for('home'))
     return redirect(url_for('home'))
 
 
@@ -212,7 +220,7 @@ if __name__ == '__main__':
         # populate database
         print('initializing database')
         initialize_db()
-        for i in range(0, 10):
+        for i in range(0, 100):
             d = datetime.datetime.now() - timedelta(days=i)
             for j in range(0, 5):
                 Post.create(
