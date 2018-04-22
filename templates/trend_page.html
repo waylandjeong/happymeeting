@@ -7,16 +7,6 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
     {{ super() }}
 {% endblock %}
 {% block pagetitle %}Happy Meeting{% endblock %}
-{% block nav %}
-<ul>
-    <li><a href="{{url_for('home')}}">Home</li>
-    <li><a href="{{url_for('about')}}">About</li>
-    <li><a class="selected" href="{url_for('trend_page')}}">Trends</li>
-    <li><a href="{{url_for('new_post', score=0)}}">Input</li>
-    <li><a href="{{url_for('log_page')}}">Log</li>
-    <li><a href="{{url_for('contact')}}">Contact</li>
-</ul>
-{% endblock %}
 {% block content %}
 <div id="main">
     <br>
@@ -61,8 +51,8 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
             // get bar chart canvas
             var mychart = document.getElementById("chart").getContext("2d");
 
-            steps = 5
-            max = 5
+            steps = {{ steps }}
+            max = {{ steps }}
 
             // draw line chart
             var LineChartDemo = new Chart(mychart).Line(barData, {
@@ -80,6 +70,15 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
 
 
         </script>
+
+        <br>
+        <div style="text-align:center">
+            <ul style="list-style: none; ">
+                <li><a href="{{url_for('trend_page', duration="days")}}">Days</a></li>
+                <li><a href="{{url_for('trend_page', duration="days")}}">Weeks</a></li>
+                <li><a href="{{url_for('trend_page', duration="months")}}">Months</a></li>
+            </ul>
+        </div>
 
         <h5> 5=very happy    4=happy    3=neutral    2=sad    1=very sad    0=no data</h5>
 

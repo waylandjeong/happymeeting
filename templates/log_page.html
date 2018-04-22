@@ -7,16 +7,6 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
     {{ super() }}
 {% endblock %}
 {% block pagetitle %}Happy Meeting{% endblock %}
-{% block nav %}
-<ul>
-    <li><a href="{{url_for('home')}}">Home</li>
-    <li><a href="{{url_for('about')}}">About</li>
-    <li><a href="{{url_for('trend_page')}}">Trends</li>
-    <li><a href="{{url_for('new_post', score=0)}}">Input</li>
-    <li><a class="selected" href="{{url_for('log_page')}}">Log</li>
-    <li><a href="{{url_for('contact')}}">Contact</li>
-</ul>
-{% endblock %}
 {% block content %}
 <div id="main" style="top:30px">
     {% for post in posts %}

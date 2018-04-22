@@ -15,10 +15,49 @@
             <h1>{% block pagetitle %}{% endblock %}</h1>
         </div>
         <div id="content">
+
+            {% if page != "post" %}
+
             <div id="nav">
-                {% block nav %}
-                {% endblock %}
+                <ul>
+                    {% if page == "home" %}
+                        <li><a class="selected" href="{{url_for('home')}}">Home</li>
+                    {% else %}
+                        <li><a href="{{url_for('home')}}">Home</li>
+                    {% endif %}
+
+                    {% if page == "about" %}
+                        <li><a class="selected" href="{{url_for('about')}}">About</li>
+                    {% else %}
+                        <li><a href="{{url_for('about')}}">About</li>
+                    {% endif %}
+
+                    {% if page == "trends" %}
+                        <li><a class="selected" href="{{url_for('trend_page', duration="days")}}">Trends</li>
+                    {% else %}
+                        <li><a href="{{url_for('trend_page', duration="days")}}">Trends</li>
+                    {% endif %}
+
+                    {% if page == "post" %}
+                        <li><a class="selected" href="{{url_for('new_post', score=0)}}">Input</li>
+                    {% else %}
+                        <li><a href="{{url_for('new_post', score=0)}}">Input</li>
+                    {% endif %}
+
+                    {% if page == "log" %}
+                        <li><a class="selected" href="{{url_for('log_page')}}">Log</li>
+                    {% else %}
+                        <li><a href="{{url_for('log_page')}}">Log</li>
+                    {% endif %}
+
+                    {% if page == "contact" %}
+                        <li><a class="selected" href="{{url_for('contact')}}">Contact</li>
+                    {% else %}
+                        <li><a href="{{url_for('contact')}}">Contact</li>
+                    {% endif %}
+                </ul>
             </div>
+            {% endif %}
             {% block content %}
             {% endblock %}
         </div>
