@@ -26,6 +26,7 @@ def init():
     app_config['CONTACTPAGE'] = data['contactpage']
     app_config['LOGPAGE'] = data['logpage']
     app_config['TRENDPAGE'] = data['trendpage']
+    app_config['ADMINPAGE'] = data['adminpage']
     app_config['DEBUG'] = data['debug']
     app_config['TESTING'] = data['testing']
     # is there a better way to do this?
@@ -69,6 +70,11 @@ def about():
 @app.route('/contact/')
 def contact():
     return render_template(app_config['CONTACTPAGE'], page="contact")
+
+
+@app.route('/admin/')
+def admin():
+    return render_template(app_config['ADMINPAGE'], page="admin")
 
 
 @app.route('/log/')
