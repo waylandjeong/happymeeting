@@ -8,8 +8,15 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
 {% endblock %}
 {% block pagetitle %}Happy Meeting{% endblock %}
 {% block content %}
-<div id="main" style="top:30px">
-    <br>
-    Placeholder for admin page.
+<div id="main" >
+    <form action="{{ url_for('admin', admin_cmd="setupdb") }}" method="POST">
+        <input type='submit' value='Clear and Load Test Data'/>
+    </form>
+    <form action="{{ url_for('admin', admin_cmd="gohome") }}" method="POST">
+    <input type='submit' value='Home'/>
+    </form>
+    <form action="{{ url_for('logout') }}" method="POST">
+    <input type='submit' value='Logout'/>
+    </form>
 </div>
 {% endblock %}
