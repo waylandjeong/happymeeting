@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_images import Images
+import flask_login
 from datetime import datetime, timedelta
 from dateutil.relativedelta import *
 import os
@@ -15,11 +16,20 @@ app.secret_key = 'monkey'
 images = Images(app)
 LOG_ENTRIES = 20
 
+login_manager = flask_login.LoginManager()
+
+login_manager.init_app(app)
+
+# Our mock database.
+users = {'wjeong@hpe.com': {'password': 'hpinvent'}}
+
 
 def init():
     with open('app_config.json') as json_data_file:
         data = json.load(json_data_file)
     app_config['NAME'] = data['dbname']
+    app_config['ADMINNAME'] = data['adminname']
+    app_config['ADMINPASSWORD'] = data['adminpassword']
     app_config['HOMEPAGE'] = data['homepage']
     app_config['POSTPAGE'] = data['postpage']
     app_config['ABOUTPAGE'] = data['aboutpage']
@@ -27,6 +37,7 @@ def init():
     app_config['LOGPAGE'] = data['logpage']
     app_config['TRENDPAGE'] = data['trendpage']
     app_config['ADMINPAGE'] = data['adminpage']
+    app_config['LOGINPAGE'] = data['loginpage']
     app_config['DEBUG'] = data['debug']
     app_config['TESTING'] = data['testing']
     # is there a better way to do this?
@@ -34,6 +45,17 @@ def init():
     db = SqliteDatabase(app_config['NAME'])
     proxy.initialize(db)
     print('setup database')
+
+    # check of admin user exists, create if it doesn't
+    initialize_db()
+    if UserDB.get_or_none(UserDB.username == app_config['ADMINNAME']) is None:
+        new_user = UserDB()
+        new_user.username = app_config['ADMINNAME']
+        new_user.email = app_config['ADMINNAME']
+        new_user.set_password(app_config['ADMINPASSWORD'])
+        new_user.save()
+        print(UserDB.get_or_none(UserDB.username == app_config['ADMINNAME']).username)
+    db.close()
 
 
 @app.before_request
@@ -48,6 +70,35 @@ def teardown_request(exception):
     # close db connection
     print('closing database')
     db.close()
+
+
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(email):
+    if UserDB.get_or_none(UserDB.username == email) is None:
+        return
+
+    user = User()
+    user.id = email
+    return user
+
+
+@login_manager.request_loader
+def request_loader(r):
+
+    email = r.form.get('email')
+    # password = r.form.get('password')
+    if UserDB.get_or_none(UserDB.username == email) is None:
+        return
+
+    user = User()
+    user.id = email
+    # user.is_authenticated = check_user(email, password)
+
+    return user
 
 
 @app.route('/')
@@ -70,11 +121,6 @@ def about():
 @app.route('/contact/')
 def contact():
     return render_template(app_config['CONTACTPAGE'], page="contact")
-
-
-@app.route('/admin/')
-def admin():
-    return render_template(app_config['ADMINPAGE'], page="admin")
 
 
 @app.route('/log/')
@@ -196,6 +242,43 @@ def trend_page(duration=None):
     return render_template(app_config['TRENDPAGE'], page="trends", steps=steps, labels=labels, values=values, legend=legend)
 
 
+def check_user(uid, password):
+    if UserDB.get_or_none(UserDB.username == uid) is None:
+        return False
+    else:
+        return UserDB.get(UserDB.username == uid).check_password(password)
+
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        if flask_login.current_user.is_authenticated:
+            return redirect(url_for('admin'))
+        else:
+            return render_template(app_config['LOGINPAGE'], page="login", bad_login="False")
+
+    email = request.form.get('email', default='', type=str)
+    password = request.form.get('password', default='', type=str)
+    print("Logging in with user = %s and password = %s" % (email, password))
+
+    # Check if user exists
+    if check_user(email, password):
+        print("User was found = " + email)
+        user = User()
+        user.id = email
+        flask_login.login_user(user)
+        return redirect(url_for('admin'))
+
+    return render_template(app_config['LOGINPAGE'], page="login", bad_login="True")
+
+
+@app.route('/logout', methods=['POST'])
+@flask_login.login_required
+def logout():
+    flask_login.logout_user()
+    return redirect(url_for('home'))
+
+
 @app.route('/create/', methods=['POST'])
 def create_post():
     score = request.args.get('score', default=0, type=int)
@@ -214,26 +297,44 @@ def create_post():
     return redirect(url_for('home'))
 
 
+@app.route('/admin/', methods=['GET', 'POST'])
+@flask_login.login_required
+def admin():
+    if request.method == 'GET':
+        return render_template(app_config['ADMINPAGE'], page="admin")
+
+    # Post commands
+    admin_cmd = request.args.get('admin_cmd', default="", type=str)
+    if admin_cmd == "setupdb":
+        print("Setting up test database")
+        test_populate_db()
+        return redirect(url_for('admin'))
+    elif admin_cmd == "gohome":
+        return redirect(url_for('home'))
+    else:
+        return redirect(url_for('home'))
+
+
+# Pre-populate the database for testing
+def test_populate_db():
+    p = Post.delete()
+    p.execute()
+
+    # populate database
+    for i in range(0, 100):
+        d = datetime.datetime.now() - timedelta(days=i)
+        for j in range(0, 5):
+            Post.create(
+                date=d.date(),
+                title="Meeting title for %d / %d" % (i, j),
+                text="Description of meeting %d / %d" % (i, j),
+                score=random.randint(1, 5)
+            )
+
+
 if __name__ == '__main__':
     init()
     if app_config['DEBUG'] == 'True':
         print("Debugging Enabled")
-        # remove database fle if it exists
-        try:
-            os.remove(app_config['NAME'])
-        except OSError:
-            pass
-        # populate database
-        print('initializing database')
-        initialize_db()
-        for i in range(0, 100):
-            d = datetime.datetime.now() - timedelta(days=i)
-            for j in range(0, 5):
-                Post.create(
-                    date=d.date(),
-                    title="Meeting title for %d / %d" % (i, j),
-                    text="Description of meeting %d / %d" % (i, j),
-                    score=random.randint(1, 5)
-                )
 
-    app.run(host='0.0.0.0', debug=True, port=8080)
+    app.run(host='0.0.0.0', debug=True, port=5000)
