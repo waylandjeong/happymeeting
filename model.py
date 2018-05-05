@@ -19,7 +19,7 @@ class Post(BaseModel):
     score = IntegerField()
 
 
-class User(BaseModel):
+class UserDB(BaseModel):
     id = PrimaryKeyField()
     username = CharField()
     email = CharField()
@@ -35,5 +35,5 @@ class User(BaseModel):
 def initialize_db():
     proxy.connect()
     proxy.create_tables([Post], safe=True)
-    proxy.create_tables([User], safe=True)
+    proxy.create_tables([UserDB], safe=True)
 
