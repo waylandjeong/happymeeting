@@ -16,7 +16,7 @@
         </div>
         <div id="content">
 
-            {% if page != "post" %}
+            {% if page != "post" and page != "login"  and page != "admin" %}
 
             <div id="nav">
                 <ul>
@@ -51,9 +51,9 @@
                     {% endif %}
 
                     {% if page == "admin" %}
-                        <li><a class="selected" href="{{url_for('admin')}}">Admin</li>
+                        <li><a class="selected" href="{{url_for('login')}}">Admin</li>
                     {% else %}
-                        <li><a href="{{url_for('admin')}}">Admin</li>
+                        <li><a href="{{url_for('login')}}">Admin</li>
                     {% endif %}
 
                     {% if page == "contact" %}
