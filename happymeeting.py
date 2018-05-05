@@ -342,4 +342,4 @@ if __name__ == '__main__':
     if app_config['DEBUG'] == 'True':
         print("Debugging Enabled")
 
-    app.run(host='0.0.0.0', debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=8080)
