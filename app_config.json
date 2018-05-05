@@ -1,5 +1,7 @@
 {
   "dbname" : "posts.db",
+  "adminname" : "wjeong@hpe.com",
+  "adminpassword" : "hpinvent",
   "homepage" : "home2.html",
   "postpage" : "new_post2.html",
   "aboutpage" : "about.html",
@@ -7,6 +9,7 @@
   "logpage" : "log_page.html",
   "trendpage" : "trend_page.html",
   "adminpage" : "admin.html",
+  "loginpage" : "login.html",
   "debug" : "False",
   "testing" : "True"
 }
