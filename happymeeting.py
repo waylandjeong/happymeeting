@@ -307,7 +307,11 @@ def admin():
     admin_cmd = request.args.get('admin_cmd', default="", type=str)
     if admin_cmd == "setupdb":
         print("Setting up test database")
-        test_populate_db()
+        test_populate_db(True)
+        return redirect(url_for('admin'))
+    elif admin_cmd == "cleardb":
+        print("Clearing database")
+        test_populate_db(False)
         return redirect(url_for('admin'))
     elif admin_cmd == "gohome":
         return redirect(url_for('home'))
@@ -316,20 +320,21 @@ def admin():
 
 
 # Pre-populate the database for testing
-def test_populate_db():
+def test_populate_db(resetdb):
     p = Post.delete()
     p.execute()
 
     # populate database
-    for i in range(0, 100):
-        d = datetime.datetime.now() - timedelta(days=i)
-        for j in range(0, 5):
-            Post.create(
-                date=d.date(),
-                title="Meeting title for %d / %d" % (i, j),
-                text="Description of meeting %d / %d" % (i, j),
-                score=random.randint(1, 5)
-            )
+    if resetdb:
+        for i in range(0, 100):
+            d = datetime.datetime.now() - timedelta(days=i)
+            for j in range(0, 5):
+                Post.create(
+                    date=d.date(),
+                    title="Meeting title for %d / %d" % (i, j),
+                    text="Description of meeting %d / %d" % (i, j),
+                    score=random.randint(1, 5)
+                )
 
 
 if __name__ == '__main__':
