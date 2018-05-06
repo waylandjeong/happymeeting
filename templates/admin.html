@@ -13,13 +13,16 @@ rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subp
         <input type='submit' value='Clear and Load Test Data'/>
     </form>
     <form action="{{ url_for('admin', admin_cmd="cleardb") }}" method="POST">
-    <input type='submit' value='Clear Database'/>
+        <input type='submit' value='Clear Database'/>
+    </form>
+    <form action="{{ url_for('chg_passwd') }}" method="GET">
+        <input type='submit' value='Change admin password'/>
     </form>
     <form action="{{ url_for('admin', admin_cmd="gohome") }}" method="POST">
-    <input type='submit' value='Home'/>
+        <input type='submit' value='Home'/>
     </form>
     <form action="{{ url_for('logout') }}" method="POST">
-    <input type='submit' value='Logout'/>
+        <input type='submit' value='Logout'/>
     </form>
 </div>
 {% endblock %}
