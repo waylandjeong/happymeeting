@@ -37,6 +37,7 @@ def init():
     app_config['LOGPAGE'] = data['logpage']
     app_config['TRENDPAGE'] = data['trendpage']
     app_config['ADMINPAGE'] = data['adminpage']
+    app_config['PASSWDPAGE'] = data['passwdpage']
     app_config['LOGINPAGE'] = data['loginpage']
     app_config['DEBUG'] = data['debug']
     app_config['TESTING'] = data['testing']
@@ -272,6 +273,33 @@ def login():
     return render_template(app_config['LOGINPAGE'], page="login", bad_login="True")
 
 
+@app.route('/chgpasswd/', methods=['GET', 'POST'])
+def chg_passwd():
+    if request.method == 'GET':
+        return render_template(app_config['PASSWDPAGE'], page="passwd")
+
+    password = request.form.get('password', default='', type=str)
+    password2 = request.form.get('password2', default='', type=str)
+
+    # Check if user exists
+    if password == password2:
+        # if no admin user, simply return home, fatal error
+        if UserDB.get_or_none(UserDB.username == app_config['ADMINNAME']) is None:
+            return redirect(url_for('home'))
+
+        admin_user = UserDB.get(UserDB.username == app_config['ADMINNAME'])
+        admin_user.set_password(password)
+        admin_user.save()
+        if check_user(app_config['ADMINNAME'], password):
+            print("Successfully changed password")
+        else:
+            print("Password does not match after change")
+
+        return redirect(url_for('admin'))
+
+    return render_template(app_config['PASSWDPAGE'], page="passwd", bad_login="True")
+
+
 @app.route('/logout', methods=['POST'])
 @flask_login.login_required
 def logout():
@@ -313,6 +341,8 @@ def admin():
         print("Clearing database")
         test_populate_db(False)
         return redirect(url_for('admin'))
+    elif admin_cmd == "chg_passwd":
+        return render_template(app_config['PASSWDPAGE'], page="passwd")
     elif admin_cmd == "gohome":
         return redirect(url_for('home'))
     else:
