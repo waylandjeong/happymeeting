@@ -9,6 +9,7 @@
   "logpage" : "log_page.html",
   "trendpage" : "trend_page.html",
   "adminpage" : "admin.html",
+  "passwdpage" : "chg_passwd.html",
   "loginpage" : "login.html",
   "debug" : "False",
   "testing" : "True"
