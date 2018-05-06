@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Happy Meeting{% endblock %}
+{% block style %}
+rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/subpage.css')}}"
+{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block pagetitle %}Happy Meeting{% endblock %}
+{% block content %}
+<div id="main" >
+    <form action="{{ url_for('chg_passwd') }}" method="POST">
+        <input type='password' name='password' id='password' placeholder='password'/>
+        <br>
+        <input type='password' name='password2' id='password2' placeholder='re-enter password'/>
+        <br>
+        <input type='submit' name='submit' value='Change Password'/>
+    </form>
+    {% if bad_login == "True" %}
+    <br>
+    Passwords do not match
+    {% endif %}
+</div>
+{% endblock %}
